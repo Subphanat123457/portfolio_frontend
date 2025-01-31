@@ -1,0 +1,75 @@
+pipeline {
+    agent any
+
+    environment {
+        FRONTEND_IMAGE = 'frontend-nginx:latest'
+        FRONTEND_DOCKERFILE = 'frontend/Dockerfile'
+        FRONTEND_DIR = 'frontend'
+        REGISTRY = 'git@github.com:Subphanat123457/portfolio_frontend.git'  // ระบุ Docker Registry ที่ใช้งาน
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm  // ดึงโค้ดจาก repository
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                script {
+                    dir(FRONTEND_DIR) {
+                        sh 'docker build -t ${REGISTRY}/${FRONTEND_IMAGE} -f ${FRONTEND_DOCKERFILE} .'
+                    }
+                }
+            }
+        }
+
+        stage('Push Frontend Image to Docker Registry') {
+            steps {
+                script {
+                    // Login to Docker registry if required
+                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD ${REGISTRY}'
+                    
+                    // Push the frontend Docker image
+                    sh 'docker push ${REGISTRY}/${FRONTEND_IMAGE}'
+                }
+            }
+        }
+
+        stage('Deploy Frontend') {
+            steps {
+                script {
+                    // Deploy Frontend service (สามารถปรับคำสั่งตามที่ใช้)
+                    sh '''
+                    # Deploy to Kubernetes or other service
+                    kubectl set image deployment/frontend-deployment frontend=${REGISTRY}/${FRONTEND_IMAGE} --record
+                    '''
+                }
+            }
+        }
+
+        stage('Verify Frontend Deployment') {
+            steps {
+                script {
+                    // ทดสอบว่า Frontend พร้อมใช้งานหรือไม่
+                    sh '''
+                    curl --fail https://profile.minuteszone.com || exit 1
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()  // Clean workspace
+        }
+        success {
+            echo 'Frontend Deployment completed successfully!'
+        }
+        failure {
+            echo 'Frontend Deployment failed.'
+        }
+    }
+}
