@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
     withCredentials: true,
-    baseURL: 'https://apiprofile.minuteszone.com/api',
+    baseURL: 'http://localhost:9000/api',
 });
 
 // ฟังก์ชันเพื่อดึงข้อมูลโปรไฟล์ผู้ใช้ พร้อมกับการจัดการข้อผิดพลาด

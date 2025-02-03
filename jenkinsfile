@@ -5,7 +5,7 @@ pipeline {
         FRONTEND_IMAGE = 'frontend-nginx:latest'
         FRONTEND_DOCKERFILE = 'frontend/Dockerfile'
         FRONTEND_DIR = 'frontend'
-        REGISTRY = 'git@github.com:Subphanat123457/portfolio_frontend.git'  // ระบุ Docker Registry ที่ใช้งาน
+        REGISTRY = 'docker.io'  // ระบุ Docker Registry ที่ใช้งาน
     }
 
     stages {
